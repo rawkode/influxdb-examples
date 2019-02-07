@@ -1,0 +1,9 @@
+# DML
+# CONTEXT-DATABASE: original
+# CONTEXT-RETENTION-POLICY: oneday
+
+temperature,city=glasgow value=4
+temperature,city=edinburgh value=7
+temperature,city=aberdeen value=1
+temperature,city=wick value=-2
+temperature,city=london value=14

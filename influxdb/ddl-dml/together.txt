@@ -1,0 +1,13 @@
+# DDL
+CREATE DATABASE newDatabase
+CREATE RETENTION POLICY twoDays ON newDatabase DURATION 2d REPLICATION 1
+
+# DML
+# CONTEXT-DATABASE: newDatabase
+# CONTEXT-RETENTION-POLICY: twoDays
+
+treasures,captain_id=dread_pirate_roberts value=801
+treasures,captain_id=flint value=29
+treasures,captain_id=sparrow value=38
+treasures,captain_id=tetra value=47
+treasures,captain_id=crunch value=109

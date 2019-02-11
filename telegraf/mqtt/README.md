@@ -4,12 +4,12 @@ This demo shows how to publish to MQTT (Eclipse Mosquitto) and have telegraf col
 
 ## Running
 
-```
+```shell
 make up
 ```
 
 ## Cleaning up
 
-```
+```shell
 make clean
 ```

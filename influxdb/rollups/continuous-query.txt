@@ -1,0 +1,1 @@
+CREATE CONTINUOUS QUERY "rollup_1h" ON "system_stats" RESAMPLE EVERY 1m BEGIN SELECT mean(*) INTO forever.cpu FROM twoweeks.cpu GROUP BY time(1h) END

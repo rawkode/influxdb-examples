@@ -1,0 +1,27 @@
+version: "2.4"
+
+services:
+  chronograf:
+    image: chronograf:1.7
+    command: chronograf --influxdb-url=http://influxdb:8086 --kapacitor-url=http://kapacitor:9092
+    ports:
+      - 8888:8888
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+  influxdb:
+    image: influxdb:1.7
+    volumes:
+      - ./influxdb.conf:/etc/influxdb/influxdb.conf
+      - ./ddl.txt:/tmp/ddl.txt
+      - ./continuous-query.txt:/tmp/cq.txt
+    healthcheck:
+      test: bash -c "</dev/tcp/localhost/8086"
+
+  telegraf:
+    image: telegraf:1.9
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+    depends_on:
+      - influxdb

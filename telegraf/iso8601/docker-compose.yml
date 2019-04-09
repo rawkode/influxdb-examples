@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  telegraf:
+    image: telegraf
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+      - ./input.json:/tmp/input.json

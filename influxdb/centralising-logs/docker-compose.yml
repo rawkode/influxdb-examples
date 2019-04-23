@@ -1,0 +1,40 @@
+version: "2.4"
+
+services:
+  chronograf:
+    image: chronograf:1.7
+    command: chronograf --influxdb-url=http://influxdb:8086 --kapacitor-url=http://kapacitor:9092
+    ports:
+      - 8888:8888
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+  influxdb:
+    image: influxdb:1.7
+    healthcheck:
+      test: bash -c "</dev/tcp/localhost/8086"
+
+  telegraf:
+    image: telegraf:1.9
+    ports:
+      - "6514:6514/udp"
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+    depends_on:
+      - influxdb
+
+  nginx:
+      image: nginx
+      ports:
+        - 8080:80
+      volumes:
+        - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      logging:
+        driver: syslog
+        options:
+          syslog-address: "udp://localhost:6514"
+          syslog-format: "rfc5424micro"
+      depends_on:
+        - telegraf
+        - influxdb

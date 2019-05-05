@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  chronograf:
+    image: chronograf:1.7
+    command: chronograf --influxdb-url=http://influxdb:8086
+    ports:
+      - 8888:8888
+
+  influxdb:
+    image: influxdb:1.7
+
+  telegraf:
+    image: telegraf
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+      - ./data.csv:/data/data.csv

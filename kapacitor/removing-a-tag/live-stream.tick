@@ -1,0 +1,12 @@
+dbrp "telegraf"."autogen"
+
+stream
+    |from()
+      .database('telegraf')
+      .retentionPolicy('autogen')
+      .measurement('cpu')
+    |delete()
+      .tag('host')
+    |influxDBOut()
+        .database('telegraf')
+        .measurement('notag')

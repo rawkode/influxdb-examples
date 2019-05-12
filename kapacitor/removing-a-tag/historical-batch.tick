@@ -1,0 +1,13 @@
+dbrp "telegraf"."autogen"
+
+batch
+    |query('SELECT usage_user FROM "telegraf"."autogen"."cpu"')
+      .period(1m)
+      .every(1m)
+    |delete()
+      .tag('host')
+    |influxDBOut()
+        .database('telegraf')
+        .retentionPolicy('autogen')
+        .measurement('notagbatch')
+        .precision('s')

@@ -1,0 +1,40 @@
+version: "2.0"
+
+services:
+  chronograf:
+    image: chronograf:1.7
+    command: chronograf --influxdb-url=http://influxdb:8086 --kapacitor-url=http://kapacitor:9092
+    ports:
+      - 8888:8888
+    depends_on:
+      - influxdb
+
+  inch:
+    build: .
+    command:
+      - "-host"
+      - "http://telegraf:8086"
+      - "-b"
+      - "10000"
+      - "-c"
+      - "50000"
+      - "-db"
+      - "telegraf"
+      - "-m"
+      - "1"
+      - "-p"
+      - "5000000"
+    depends_on:
+      - influxdb
+      - telegraf
+
+  influxdb:
+    image: influxdb:1.7
+
+  telegraf:
+    image: telegraf:1.10
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+    depends_on:
+      - influxdb
+     

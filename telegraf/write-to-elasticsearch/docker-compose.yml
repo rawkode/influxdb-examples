@@ -1,0 +1,19 @@
+version: "2.0"
+
+services:
+  telegraf-influxdb:
+    image: telegraf:1.11
+    volumes:
+      - ./telegraf-as-influxdb.conf:/etc/telegraf/telegraf.conf
+
+  telegraf:
+    image: telegraf:1.11
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+
+  elasticsearch:
+    image: elasticsearch:7.2.0
+    environment:
+      discovery.type: single-node
+    ports:
+      - 9200:9200

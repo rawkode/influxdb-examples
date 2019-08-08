@@ -1,0 +1,33 @@
+version: "2.4"
+
+services:
+  chronograf:
+    image: chronograf:1.7
+    command: chronograf --influxdb-url=http://influxdb:8086
+    ports:
+      - 8888:8888
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+  influxdb:
+    image: influxdb:1.7
+    healthcheck:
+      test: bash -c "</dev/tcp/localhost/8086"
+
+  telegraf:
+    image: telegraf:1.11
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+    depends_on:
+      - influxdb
+
+  gatling:
+    image: denvazh/gatling:3.0.3
+    entrypoint: /bin/bash
+    command: -c "echo Please run through Makefile"
+    volumes:
+      - ./gatling.conf:/opt/gatling/conf/influxdb.conf
+    depends_on:
+      - influxdb
+      - telegraf

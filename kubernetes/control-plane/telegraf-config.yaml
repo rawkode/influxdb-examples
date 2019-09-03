@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegraf-control-plane
+  namespace: monitoring
+data:
+  telegraf.conf: |
+    [[outputs.influxdb_v2]]
+      urls = ["http://influxdb.monitoring:9999"]
+
+      organization = "InfluxData"
+      bucket = "kubernetes"
+      token = "secret-token"
+
+    [[inputs.kube_inventory]]
+      url = "https://kubernetes.default"
+      bearer_token = "/run/secrets/kubernetes.io/serviceaccount/token"
+      insecure_skip_verify = true
+      resource_exclude = []
+      resource_include = []

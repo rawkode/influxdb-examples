@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegraf-control-plane
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: telegraf-control-plane
+  template:
+    metadata:
+      labels:
+        app: telegraf-control-plane
+    spec:
+      serviceAccount: telegraf
+      volumes:
+        - name: telegraf-config
+          configMap:
+            name: telegraf-control-plane
+      containers:
+        - name: telegraf-control-plane
+          image: telegraf:1.11
+          resources: {}
+          volumeMounts:
+            - name: telegraf-config
+              mountPath: /etc/telegraf/telegraf.conf
+              subPath: telegraf.conf

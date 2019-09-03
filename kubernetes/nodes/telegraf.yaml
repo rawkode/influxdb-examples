@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: telegraf-nodes
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: telegraf-nodes
+  template:
+    metadata:
+      labels:
+        app: telegraf-nodes
+    spec:
+      serviceAccount: telegraf
+      volumes:
+        - name: telegraf-config
+          configMap:
+            name: telegraf-nodes
+      containers:
+        - name: telegraf-nodes
+          image: telegraf:1.11
+          resources: {}
+          volumeMounts:
+            - name: telegraf-config
+              mountPath: /etc/telegraf/telegraf.conf
+              subPath: telegraf.conf
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName

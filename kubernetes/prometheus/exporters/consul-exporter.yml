@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consul-exporter
+  namespace: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: consul-exporter
+  template:
+    metadata:
+      labels:
+        app: consul-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/scheme: "http"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "9107"
+    spec:
+      containers:
+        - name: consul-exporter
+          image: prom/consul-exporter
+          args:
+            - --consul.server=consul.default:8500
+          resources: {}
+          ports:
+            - containerPort: 9107

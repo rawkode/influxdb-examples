@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: telegraf-prometheus
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: telegraf-prometheus
+  template:
+    metadata:
+      labels:
+        app: telegraf-prometheus
+    spec:
+      serviceAccount: telegraf
+      volumes:
+        - name: telegraf-config
+          configMap:
+            name: telegraf-prometheus
+      containers:
+        - name: telegraf-prometheus
+          image: telegraf:1.11
+          resources: {}
+          volumeMounts:
+            - name: telegraf-config
+              mountPath: /etc/telegraf/telegraf.conf
+              subPath: telegraf.conf

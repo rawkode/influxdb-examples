@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegraf-prometheus
+  namespace: monitoring
+data:
+  telegraf.conf: |
+    [[outputs.influxdb_v2]]
+      urls = ["http://influxdb.monitoring:9999"]
+
+      organization = "InfluxData"
+      bucket = "kubernetes"
+      token = "secret-token"
+
+    [[inputs.prometheus]]
+      monitor_kubernetes_pods = true
+      # monitor_kubernetes_pods_namespace = ""
+
+      bearer_token = "/run/secrets/kubernetes.io/serviceaccount/token"
+      insecure_skip_verify = true

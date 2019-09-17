@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    app: "{{ template "influxdb.fullname" . }}"
+    chart: "{{ template "influxdb.chart" . }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+  name: {{ template "influxdb.fullname" . }}-create-admin-user
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-delete-policy": "before-hook-creation"
+spec:
+  activeDeadlineSeconds: 30
+  template:
+    metadata:
+      labels:
+        app: {{ template "influxdb.fullname" . }}
+        release: "{{ .Release.Name }}"
+    spec:
+      containers:
+      - name: {{ template "influxdb.fullname" . }}-create-admin-user
+        image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+        env:
+          - name: INFLUXDB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "influxdb.fullname" . }}-auth
+                key: admin-password
+          - name: INFLUXDB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "influxdb.fullname" . }}-auth
+                key: admin-token
+        command:
+          - bash
+        args:
+          - -c
+          - |
+            influx setup -f --host \
+            http://{{ template "influxdb.fullname" . }}:{{ .Values.service.port }} \
+            -b {{ .Values.adminUser.bucket }} -o {{ .Values.adminUser.organization }} \
+            -p ${INFLUXDB_PASSWORD} -u {{ .Values.adminUser.user }} -t $INFLUXDB_TOKEN
+      restartPolicy: OnFailure

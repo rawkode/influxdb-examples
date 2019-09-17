@@ -1,0 +1,81 @@
+version: "2.4"
+
+services:
+  telegraf-edge:
+    build: .
+    ports:
+      - 5559:5559
+    volumes:
+      - ./t-edge.conf:/etc/telegraf/telegraf.conf
+      - ./curl.sh:/usr/bin/tcurl
+      - ./echo.sh:/usr/bin/techo
+      - ./prometheus.sh:/usr/bin/prom
+
+  telegraf-consume:
+    image: telegraf:1.12
+    volumes:
+      - ./t-consume.conf:/etc/telegraf/telegraf.conf
+
+  python:
+    build: ./python-app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://telegraf-edge:5559"]
+      interval: 1s
+      timeout: 1s
+      retries: 1
+      start_period: 1s
+    restart: always
+    ports:
+      - 5555:5555
+
+  chronograf:
+    image: chronograf:1.7
+    command: chronograf --influxdb-url=http://influxdb:8086 --kapacitor-url=http://kapacitor:9092
+    ports:
+      - 8888:8888
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+  influxdb:
+    image: influxdb:1.7
+    healthcheck:
+      test: bash -c "</dev/tcp/localhost/8086"
+
+  influxdb2:
+    image: quay.io/influxdb/influxdb:2.0.0-alpha
+    ports:
+      - 9999:9999
+    healthcheck:
+      test: bash -c "</dev/tcp/localhost/9999"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  autocurl:
+    image: appropriate/curl
+    entrypoint: autocurl
+    volumes:
+      - ./autocurl.sh:/bin/autocurl
+
+  autoheal:
+    image: willfarrell/autoheal
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

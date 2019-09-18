@@ -1,0 +1,10 @@
+pipeline {
+    agent { docker { image 'alpine:3.8' } }
+    stages {
+        stage('build') {
+            steps {
+                sh 'apk add --update git'
+            }
+        }
+    }
+}

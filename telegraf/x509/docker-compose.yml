@@ -5,7 +5,7 @@ services:
     image: chronograf:1.7
     command: chronograf --influxdb-url=http://influxdb:8086
     ports:
-      - 8888:8888
+      - 9888:8888
 
   influxdb:
     image: influxdb:1.7

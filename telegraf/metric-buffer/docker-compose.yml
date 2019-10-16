@@ -1,0 +1,21 @@
+version: "2.4"
+
+services:
+  influxdb:
+    image: influxdb:1.7
+    healthcheck:
+      test: bash -c "</dev/tcp/localhost/8086"
+
+  chronograf:
+    image: chronograf:1.7
+    command: chronograf --influxdb-url=http://influxdb:8086
+    ports:
+      - 8888:8888
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+  telegraf:
+    image: telegraf:1.12
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf

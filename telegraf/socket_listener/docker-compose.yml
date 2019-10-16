@@ -1,0 +1,13 @@
+version: "2.4"
+
+services:
+  metrics:
+    image: bash
+    entrypoint: /bin/metrics
+    volumes:
+      - ./send_metrics.sh:/bin/metrics
+
+  telegraf:
+    image: telegraf:1.12
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf

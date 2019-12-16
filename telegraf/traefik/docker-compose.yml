@@ -1,0 +1,24 @@
+version: "2.4"
+
+services:
+  telegraf:
+    image: telegraf:1.13
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+    labels:
+      - "traefik.enabled=true"
+      - "traefik.http.routers.telegraf.rule=Host(`telegraf.com`)"
+      - "traefik.http.services.telegraf.loadbalancer.server.port=8086"
+
+  traefik:
+    image: "traefik:v2.1"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"

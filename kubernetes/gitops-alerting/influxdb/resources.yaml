@@ -1,0 +1,32 @@
+apiVersion: influxdata.com/v2alpha1
+kind: Task
+metadata:
+  name: gitops-alert
+spec:
+  description: gitops-alert
+  every: 1m
+  offset: 0s
+  status: active
+  query:  >
+    import "http"
+    import "json"
+
+    from(bucket: "kubernetes")
+      |> range(start: -1m)
+      |> filter(fn: (r) => r._measurement == "kubernetes_pod_container")
+      |> filter(fn: (r) => r.namespace == "gitops")
+      |> filter(fn: (r) => not exists r["gitops.com/sha"])
+      |> group(columns: ["pod_name"])
+      |> first()
+      |> map(fn: (r) => {
+        payload = {
+          message: "There's an unexpected pod running in our cluster!",
+          pod_name: r.pod_name,
+          namespace: r.namespace,
+          node_name: r.node_name
+        }
+        
+        _ = http.post(url: "https://rbox.app/box/request/7a0f9021-e16a-40f1-a96f-968b6d4778f3", data: json.encode(v: payload))
+        
+        return {r with message: string(v: json.encode(v: payload))}
+      })

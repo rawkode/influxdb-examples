@@ -19,14 +19,13 @@ spec:
             name: telegraf-nodes
       containers:
         - name: telegraf-nodes
-          image: telegraf:1.11
+          image: telegraf:master
+          command:
+            - telegraf
+          imagePullPolicy: IfNotPresent
           resources: {}
-          volumeMounts:
-            - name: telegraf-config
-              mountPath: /etc/telegraf/telegraf.conf
-              subPath: telegraf.conf
           env:
-            - name: NODE_NAME
+            - name: HOSTIP
               valueFrom:
                 fieldRef:
-                  fieldPath: spec.nodeName
+                  fieldPath: status.hostIP

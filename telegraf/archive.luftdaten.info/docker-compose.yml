@@ -1,0 +1,14 @@
+version: "2.4"
+
+services:
+  influxdb:
+    image: "quay.io/influxdb/influxdb:2.0.0-beta"
+    ports:
+      - "9999:9999"
+
+  telegraf:
+    image: "telegraf:1.14"
+    mem_limit: "512m"
+    volumes:
+      - "./telegraf.conf:/etc/telegraf/telegraf.conf"
+      - "./2019-11_dht22.csv:/data/2019-11_dht22.csv"

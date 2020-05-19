@@ -1,0 +1,18 @@
+version: "2.4"
+
+services:
+  python:
+    build:
+      target: dshell
+      context: .
+    working_dir: /code
+    volumes:
+      - .:/code
+    depends_on: 
+      influxdb:
+        condition: service_started
+
+  influxdb:
+    image: quay.io/influxdb/influxdb:2.0.0-beta
+    ports:
+      - 9999:9999

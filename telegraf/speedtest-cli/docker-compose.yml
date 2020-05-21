@@ -1,0 +1,8 @@
+version: "2.4"
+
+services:
+  telegraf:
+    build: .
+    volumes: 
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf
+  
